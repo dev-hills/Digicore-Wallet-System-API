@@ -1,8 +1,7 @@
 # Digicore Wallet System API
 
-Author: Hilary Emujede
-
-Email: hilaryemujede48@gmail.com
+**Author:** Hilary Emujede  
+**Email:** hilaryemujede48@gmail.com
 
 A RESTful Wallet API built with Spring Boot 3+ that allows users to create wallets, fund them, and perform debit transactions with full transaction history tracking.
 
@@ -24,6 +23,66 @@ A RESTful Wallet API built with Spring Boot 3+ that allows users to create walle
 
 ---
 
+## Project Structure
+
+```
+Digicore-Wallet-System-API/
+├── .mvn/wrapper/
+│   └── maven-wrapper.properties
+├── src/
+│   ├── main/
+│   │   ├── java/com/wallet/system/api/
+│   │   │   ├── WalletSystemApiApplication.java         # Application entry point
+│   │   │   ├── config/
+│   │   │   │   └── OpenApiConfig.java                 # Swagger / OpenAPI bean
+│   │   │   ├── shared/
+│   │   │   │   ├── error/
+│   │   │   │   │   └── ErrorResponse.java
+│   │   │   │   ├── exception/
+│   │   │   │   │   ├── GlobalExceptionHandler.java
+│   │   │   │   │   ├── InsufficientFundsException.java
+│   │   │   │   │   └── WalletNotFoundException.java
+│   │   │   │   └── ApiResponse.java
+│   │   │   ├── transaction/
+│   │   │   │   ├── dto/
+│   │   │   │   │   └── TransactionResponse.java
+│   │   │   │   ├── entity/
+│   │   │   │   │   └── Transaction.java
+│   │   │   │   ├── enums/
+│   │   │   │   │   └── TransactionType.java
+│   │   │   │   └── repository/
+│   │   │   │       └── TransactionRepository.java
+│   │   │   └── wallet/
+│   │   │       ├── controller/
+│   │   │       │   └── WalletController.java
+│   │   │       ├── dto/
+│   │   │       │   ├── AmountRequest.java
+│   │   │       │   ├── CreateWalletRequest.java
+│   │   │       │   ├── WalletResponse.java
+│   │   │       │   └── WalletWithHistoryResponse.java
+│   │   │       ├── entity/
+│   │   │       │   └── Wallet.java
+│   │   │       ├── repository/
+│   │   │       │   └── WalletRepository.java
+│   │   │       └── service/
+│   │   │           ├── WalletService.java
+│   │   │           └── WalletServiceImpl.java
+│   │   └── resources/
+│   │       └── application.properties                # App & DB configuration
+│   └── test/
+│       └── java/com/wallet/system/api/
+│           ├── WalletServiceTest.java               # Unit tests for WalletService
+│           └── WalletSystemApiApplicationTests.java # Spring Boot app context tests
+├── .gitattributes
+├── .gitignore
+├── mvnw                                           # Maven wrapper (Unix)
+├── mvnw.cmd                                       # Maven wrapper (Windows)
+├── pom.xml                                        # Dependencies & build config
+└── README.md
+```
+
+---
+
 ## Build & Run
 
 ### Prerequisites
@@ -35,7 +94,7 @@ A RESTful Wallet API built with Spring Boot 3+ that allows users to create walle
 ```bash
 # 1. Clone the repository
 git clone <repo-url>
-cd digicore-wallet-system-api
+cd Digicore-Wallet-System-API
 
 # 2. Build the project
 mvn clean package
