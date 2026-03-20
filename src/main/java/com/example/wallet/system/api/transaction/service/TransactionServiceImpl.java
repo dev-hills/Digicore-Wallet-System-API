@@ -11,6 +11,7 @@ import com.example.wallet.system.api.wallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,6 +25,7 @@ public class TransactionServiceImpl implements TransactionService{
     private final TransactionMapper transactionMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<TransactionResponse> getTransactions(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new WalletNotFoundException(walletId));
@@ -36,6 +38,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    @Transactional
     public Transaction recordTransaction(Long walletId, TransactionType type, BigDecimal amount, BigDecimal balanceBefore, BigDecimal balanceAfter) {
         Transaction transaction = Transaction.builder()
                 .walletId(walletId)
