@@ -5,12 +5,15 @@ import com.example.wallet.system.api.shared.exception.WalletNotFoundException;
 import com.example.wallet.system.api.transaction.dto.TransactionResponse;
 import com.example.wallet.system.api.transaction.entity.Transaction;
 import com.example.wallet.system.api.transaction.enums.TransactionType;
+import com.example.wallet.system.api.transaction.mapper.TransactionMapper;
 import com.example.wallet.system.api.transaction.repository.TransactionRepository;
+import com.example.wallet.system.api.transaction.service.TransactionService;
 import com.example.wallet.system.api.wallet.dto.AmountRequest;
 import com.example.wallet.system.api.wallet.dto.CreateWalletRequest;
 import com.example.wallet.system.api.wallet.dto.WalletResponse;
 import com.example.wallet.system.api.wallet.dto.WalletWithHistoryResponse;
 import com.example.wallet.system.api.wallet.entity.Wallet;
+import com.example.wallet.system.api.wallet.mapper.WalletMapper;
 import com.example.wallet.system.api.wallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,9 @@ import java.util.List;
 public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
+    private final WalletMapper walletMapper;
+    private final TransactionMapper transactionMapper;
+    private final TransactionService transactionService;
 
     @Override
     @Transactional
@@ -35,7 +41,7 @@ public class WalletServiceImpl implements WalletService {
                 .balance(BigDecimal.ZERO)
                 .build();
 
-        return toWalletResponse(walletRepository.save(wallet));
+        return walletMapper.toWalletResponse(walletRepository.save(wallet));
     }
 
     @Override
@@ -49,10 +55,10 @@ public class WalletServiceImpl implements WalletService {
         wallet.setBalance(balanceAfter);
         walletRepository.save(wallet);
 
-        Transaction transaction = recordTransaction(wallet.getId(), TransactionType.CREDIT,
+        Transaction transaction = transactionService.recordTransaction(wallet.getId(), TransactionType.CREDIT,
                 request.getAmount(), balanceBefore, balanceAfter);
 
-        return toTransactionResponse(transaction);
+        return transactionMapper.toTransactionResponse(transaction);
     }
 
     @Override
@@ -70,10 +76,10 @@ public class WalletServiceImpl implements WalletService {
         wallet.setBalance(balanceAfter);
         walletRepository.save(wallet);
 
-        Transaction transaction = recordTransaction(wallet.getId(), TransactionType.DEBIT,
+        Transaction transaction = transactionService.recordTransaction(wallet.getId(), TransactionType.DEBIT,
                 request.getAmount(), balanceBefore, balanceAfter);
 
-        return toTransactionResponse(transaction);
+        return transactionMapper.toTransactionResponse(transaction);
     }
 
     @Override
@@ -84,11 +90,11 @@ public class WalletServiceImpl implements WalletService {
         List<TransactionResponse> transactions = transactionRepository
                 .findByWalletIdOrderByCreatedAtDesc(walletId)
                 .stream()
-                .map(this::toTransactionResponse)
+                .map(this.transactionMapper::toTransactionResponse)
                 .toList();
 
         return WalletWithHistoryResponse.builder()
-                .wallet(toWalletResponse(wallet))
+                .wallet(walletMapper.toWalletResponse(wallet))
                 .transactions(transactions)
                 .build();
     }
@@ -99,37 +105,4 @@ public class WalletServiceImpl implements WalletService {
                 .orElseThrow(() -> new WalletNotFoundException(walletId));
     }
 
-    private WalletResponse toWalletResponse(Wallet wallet) {
-        return WalletResponse.builder()
-                .id(wallet.getId())
-                .userId(wallet.getUserId())
-                .balance(wallet.getBalance())
-                .createdAt(wallet.getCreatedAt())
-                .updatedAt(wallet.getUpdatedAt())
-                .build();
-    }
-
-    private Transaction recordTransaction(Long walletId, TransactionType type,BigDecimal amount, BigDecimal balanceBefore, BigDecimal balanceAfter) {
-        Transaction transaction = Transaction.builder()
-                .walletId(walletId)
-                .type(type)
-                .amount(amount)
-                .balanceBefore(balanceBefore)
-                .balanceAfter(balanceAfter)
-                .build();
-
-        return transactionRepository.save(transaction);
-    }
-
-    private TransactionResponse toTransactionResponse(Transaction transaction) {
-        return TransactionResponse.builder()
-                .transactionId(transaction.getId())
-                .walletId(transaction.getWalletId())
-                .type(transaction.getType())
-                .amount(transaction.getAmount())
-                .balanceBefore(transaction.getBalanceBefore())
-                .balanceAfter(transaction.getBalanceAfter())
-                .createdAt(transaction.getCreatedAt())
-                .build();
-    }
 }

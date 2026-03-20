@@ -44,14 +44,21 @@ Digicore-Wallet-System-API/
 │   │   │   │   │   └── WalletNotFoundException.java
 │   │   │   │   └── ApiResponse.java
 │   │   │   ├── transaction/
+│   │   │   │   ├── controller/
+│   │   │   │   │   └── TransactionController.java
 │   │   │   │   ├── dto/
 │   │   │   │   │   └── TransactionResponse.java
 │   │   │   │   ├── entity/
 │   │   │   │   │   └── Transaction.java
 │   │   │   │   ├── enums/
 │   │   │   │   │   └── TransactionType.java
-│   │   │   │   └── repository/
-│   │   │   │       └── TransactionRepository.java
+│   │   │   │   ├── mapper/
+│   │   │   │   │   └── TransactionMapper.java
+│   │   │   │   ├── repository/
+│   │   │   │   │   └── TransactionRepository.java
+│   │   │   │   └── service/
+│   │   │   │       ├── TransactionService.java
+│   │   │   │       └── TransactionServiceImpl.java
 │   │   │   └── wallet/
 │   │   │       ├── controller/
 │   │   │       │   └── WalletController.java
@@ -62,6 +69,8 @@ Digicore-Wallet-System-API/
 │   │   │       │   └── WalletWithHistoryResponse.java
 │   │   │       ├── entity/
 │   │   │       │   └── Wallet.java
+│   │   │       ├── mapper/
+│   │   │       │   └── WalletMapper.java
 │   │   │       ├── repository/
 │   │   │       │   └── WalletRepository.java
 │   │   │       └── service/
@@ -111,12 +120,13 @@ The server starts on **http://localhost:8080**
 
 ## API Endpoints
 
-| Method | Endpoint                  | Description                    |
-|--------|---------------------------|--------------------------------|
-| POST   | `/wallets`                | Create a new wallet            |
-| POST   | `/wallets/{id}/fund`      | Fund (credit) a wallet         |
-| POST   | `/wallets/{id}/debit`     | Debit (spend from) a wallet    |
-| GET    | `/wallets/{id}`           | Get wallet + transaction history |
+| Method | Endpoint              | Description                    |
+|--------|-----------------------|--------------------------------|
+| POST   | `/wallets`            | Create a new wallet            |
+| POST   | `/wallets/{id}/fund`  | Fund (credit) a wallet         |
+| POST   | `/wallets/{id}/debit` | Debit (spend from) a wallet    |
+| GET    | `/wallets/{id}`       | Get wallet + transaction history |
+| GET    | `/transactions/{id}`  | Get transaction history |
 
 ### Example Requests
 
@@ -147,6 +157,13 @@ Content-Type: application/json
 **Get wallet**
 ```http
 GET /wallets/1
+
+```
+
+**Get transaction history for a wallet**
+```http
+GET /transactions/1
+
 ```
 
 ---
@@ -199,6 +216,7 @@ mvn test
 - Debiting **beyond available balance** returns `400 INSUFFICIENT_FUNDS`
 - All monetary values use **`BigDecimal`** to avoid floating-point precision issues
 - Every fund/debit operation records a **Transaction** with before/after balances
+- Transaction history is returned **most recent first**
 
 ---
 
@@ -208,7 +226,7 @@ mvn test
 
 2. **`@Transactional` on service methods** — Wallet balance updates and transaction log inserts happen atomically. If either fails, the entire operation rolls back.
 
-3. **Transaction history as a bonus feature** — The `GET /wallets/{id}` endpoint returns the wallet alongside its full transaction history (most recent first), providing an audit trail out of the box.
+3. **Transaction history as a bonus feature** — The `GET /transactions/{id}` endpoint returns the full transaction history of a wallet (most recent first), providing an audit trail out of the box.
 
 4. **Single userId per wallet** — The spec does not require unique wallets per user, so a user can have multiple wallets (e.g. for different currencies or purposes).
 
