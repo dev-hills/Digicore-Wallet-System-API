@@ -1,6 +1,7 @@
 # Digicore Wallet System API
 
 Author: Hilary Emujede
+
 Email: hilaryemujede48@gmail.com
 
 A RESTful Wallet API built with Spring Boot 3+ that allows users to create wallets, fund them, and perform debit transactions with full transaction history tracking.
